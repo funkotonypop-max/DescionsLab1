@@ -1,1 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DecisionLab — Decision Making Simulator</title>
+<style>
+:root {
+  --bg:#0b1020; --panel:#131c30; --panel2:#19243a; --line:#293750;
+  --text:#edf3ff; --muted:#9eacc4; --blue:#78a9ff; --cyan:#62dfd0;
+  --green:#75d6a0; --red:#ff8585; --yellow:#f3c86b;
+}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at top,#182846 0%,var(--bg) 55%);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;line-height:1.5}
+button,input,select{font:inherit}
+button{cursor:pointer}
+header{max-width:1180px;margin:auto;padding:32px 24px 20px;display:flex;justify-content:space-between;align-items:center;gap:18px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#6b9cff,#63e0d0);display:grid;place-items:center;color:#091426;font-weight:900;font-size:22px}
+h1{font-size:25px;margin:0;letter-spacing:-.7px}
+.subtitle{color:var(--muted);font-size:13px;margin-top:2px}
+.header-tag{border:1px solid var(--line);border-radius:30px;padding:7px 12px;color:var(--cyan);font-size:12px}
+main{max-width:1180px;margin:auto;padding:0 24px 50px}
+.intro{padding:24px 0 20px}
+.eyebrow{color:var(--cyan);font-size:11px;letter-spacing:2px;font-weight:800;text-transform:uppercase}
+.intro h2{font-size:clamp(25px,4vw,38px);line-height:1.15;max-width:700px;margin:10px 0}
+.intro p{color:var(--muted);max-width:720px;margin:0}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:22px 0}
+select,.btn,.small-btn{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:9px;padding:10px 13px}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#081327;font-weight:800}
+.btn:hover,.small-btn:hover{filter:brightness(1.15)}
+.btn.danger{color:var(--red)}
+.layout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.65fr);gap:18px;align-items:start}
+.panel{background:linear-gradient(160deg,rgba(25,36,58,.96),rgba(16,25,43,.96));border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:18px;min-width:0}
+.panel h3{margin:0 0 5px;font-size:17px}
+.panel-desc{font-size:12px;color:var(--muted);margin:0 0 16px}
+.section-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
+.section-head h3{margin:0}
+.small-btn{font-size:12px;padding:7px 10px}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:11px}
+table{border-collapse:collapse;width:100%;min-width:570px;font-size:13px}
+th{background:#202d45;color:#b8c9e4;font-weight:700;text-align:center;padding:11px 8px}
+td{padding:7px;border-top:1px solid var(--line);text-align:center}
+td:first-child,th:first-child{text-align:left}
+td input{width:100%;min-width:75px;background:#0d1729;border:1px solid #34435e;border-radius:7px;padding:8px;color:var(--text);text-align:center}
+td:first-child input{text-align:left;min-width:115px}
+th input{width:75px;background:#111d31;color:var(--text);border:1px solid #40516e;border-radius:6px;padding:6px;text-align:center}
+.prob-input{max-width:75px}
+.remove{background:transparent;border:0;color:var(--red);font-size:17px;padding:4px 8px}
+.table-note{font-size:11px;color:var(--muted);margin-top:10px}
+.status{padding:10px 12px;border-radius:9px;background:#102d2c;color:var(--cyan);font-size:12px;margin-top:12px}
+.status.error{background:#3a2029;color:#ffaaaa}
+.criteria{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.criterion{background:#111c30;border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;gap:10px;align-items:flex-start}
+.criterion input{accent-color:var(--cyan);margin-top:4px}
+.criterion strong{display:block;font-size:13px}
+.criterion span{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+.result{border:1px solid var(--line);border-radius:11px;padding:13px;margin-top:10px;background:#101a2c}
+.result-top{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.result-name{font-weight:750;font-size:14px}
+.result-value{color:var(--cyan);font-weight:800;font-variant-numeric:tabular-nums}
+.result-detail{font-size:11px;color:var(--muted);margin-top:5px}
+.winner{border-color:#438b81;background:linear-gradient(110deg,#12312f,#13263a)}
+.pill{font-size:10px;padding:3px 7px;border-radius:20px;background:#244c48;color:#8ff0d4;margin-left:5px}
+.flow{display:flex;flex-direction:column;gap:8px}
+.flow-step{display:grid;grid-template-columns:32px 1fr;gap:10px;align-items:start;padding:11px;border:1px solid var(--line);border-radius:10px;background:#101a2c}
+.flow-number{width:27px;height:27px;border-radius:9px;background:#263c5d;color:var(--blue);display:grid;place-items:center;font-size:12px;font-weight:800}
+.flow-step strong{font-size:12px;display:block}
+.flow-step p{font-size:11px;color:var(--muted);margin:3px 0 0}
+.flow-arrow{text-align:center;color:#55718f;font-size:16px;height:8px;line-height:8px}
+.final-step{border-color:#438b81;background:#102c2b}
+.final-step .flow-number{background:#24564d;color:#9af0d5}
+.empty{color:var(--muted);font-size:13px;padding:12px 0}
+footer{border-top:1px solid var(--line);padding:20px 0 0;color:var(--muted);font-size:12px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+a{color:var(--blue)}
+@media(max-width:800px){.layout{grid-template-columns:1fr}header{padding-top:22px}.header-tag{display:none}}
+@media(max-width:520px){main{padding:0 14px 35px}header{padding-left:14px;padding-right:14px}.panel{padding:15px}.criteria{grid-template-columns:1fr}.intro{padding-top:12px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="logo">D</div>
+    <div><h1>DecisionLab</h1><div class="subtitle">A practical decision-making simulator</div></div>
+  </div>
+  <div class="header-tag">C10 · DECISION THEORY</div>
+</header>
 
+<main>
+  <section class="intro">
+    <div class="eyebrow">Think clearly. Decide confidently.</div>
+    <h2>Make complex decisions easier to understand.</h2>
+    <p>Build a payoff matrix, compare decision criteria, and follow the reasoning behind the final recommendation. Change the numbers and see how the result changes instantly.</p>
+  </section>
+
+  <div class="toolbar">
+    <select id="exampleSelect" aria-label="Choose an example">
+      <option value="factory">Example 1 · Factory investment</option>
+      <option value="launch">Example 2 · Product launch</option>
+      <option value="custom">Custom decision</option>
+    </select>
+    <button class="btn" id="resetBtn">Reset example</button>
+    <button class="btn primary" id="addAlternative">+ Alternative</button>
+    <button class="btn" id="addState">+ State of nature</button>
+  </div>
+
+  <div class="layout">
+    <div>
+      <section class="panel">
+        <div class="section-head">
+          <h3>01 / Payoff matrix</h3>
+          <span class="eyebrow">Your input</span>
+        </div>
+        <p class="panel-desc">Edit the alternatives, possible states of nature, payoffs, and probabilities. Payoffs represent the result of each decision.</p>
+        <div class="table-wrap"><table id="matrix"></table></div>
+        <div id="validation" class="status">Enter payoffs and make sure the probabilities add up to 100%.</div>
+        <div class="table-note">All payoffs can be positive or negative. Probabilities are entered as percentages. Each state of nature should have a probability.</div>
+      </section>
+
+      <section class="panel">
+        <div class="section-head">
+          <h3>02 / Choose your criteria</h3>
+          <span class="eyebrow">Analysis settings</span>
+        </div>
+        <p class="panel-desc">Select which criteria to include in the staged decision process. Each criterion evaluates the alternatives differently.</p>
+        <div class="criteria">
+          <label class="criterion"><input type="checkbox" id="useMaximax" checked><span><strong>Maximax</strong><span>Optimistic: choose the highest possible payoff.</span></span></label>
+          <label class="criterion"><input type="checkbox" id="useMaximin" checked><span><strong>Maximin</strong><span>Conservative: choose the best worst-case payoff.</span></span></label>
+          <label class="criterion"><input type="checkbox" id="useRegret" checked><span><strong>Minimax Regret</strong><span>Minimize the largest possible missed opportunity.</span></span></label>
+          <label class="criterion"><input type="checkbox" id="useEmv" checked><span><strong>EMV / Bayes</strong><span>Choose the highest expected monetary value.</span></span></label>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h3>03 / Decision flow</h3>
+        <p class="panel-desc">The selected criteria are applied one after another. Alternatives tied at a stage are kept for the next stage.</p>
+        <div id="flow" class="flow"></div>
+      </section>
+    </div>
+
+    <aside>
+      <section class="panel">
+        <h3>04 / Results</h3>
+        <p class="panel-desc">The best alternative under each selected criterion.</p>
+        <div id="results"></div>
+      </section>
+      <section class="panel">
+        <h3>05 / Final recommendation</h3>
+        <p class="panel-desc">The result after applying your selected criteria in sequence.</p>
+        <div id="recommendation"></div>
+      </section>
+      <section class="panel">
+        <h3>How to read the results</h3>
+        <p class="panel-desc">A quick guide to the four decision rules.</p>
+        <div class="result">
+          <div class="result-name">Maximax</div>
+          <div class="result-detail">Find the maximum payoff in each row. Select the alternative with the largest of those values.</div>
+        </div>
+        <div class="result">
+          <div class="result-name">Maximin</div>
+          <div class="result-detail">Find the minimum payoff in each row. Select the alternative with the largest minimum.</div>
+        </div>
+        <div class="result">
+          <div class="result-name">Minimax Regret</div>
+          <div class="result-detail">For each state, subtract each payoff from the best payoff in that state. Select the alternative with the smallest maximum regret.</div>
+        </div>
+        <div class="result">
+          <div class="result-name">EMV / Bayes</div>
+          <div class="result-detail">Multiply each payoff by its state's probability and add the results. Select the highest expected value.</div>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <footer>
+    <span>DecisionLab · C10 Decision-Making Project</span>
+    <span>Created with assistance from AI · <a id="conversationLink" href="https://chatgpt.com/" target="_blank" rel="noopener">AI conversation used</a></span>
+  </footer>
+</main>
+
+<script>
+const examples = {
+  factory: {
+    alternatives:["Build small factory","Build medium factory","Build large factory","Do not invest"],
+    states:["High demand","Medium demand","Low demand"],
+    probabilities:[25,50,25],
+    payoffs:[[90,55,-20],[130,65,-55],[190,40,-130],[0,0,0]]
+  },
+  launch: {
+    alternatives:["Premium launch","Standard launch","Small launch","Do not launch"],
+    states:["Strong demand","Average demand","Weak demand"],
+    probabilities:[30,45,25],
+    payoffs:[[150,45,-90],[110,65,-25],[70,45,5],[10,10,10]]
+  },
+  custom: {
+    alternatives:["Alternative A","Alternative B","Alternative C"],
+    states:["State 1","State 2","State 3"],
+    probabilities:[30,40,30],
+    payoffs:[[80,30,-10],[60,50,5],[100,10,-30]]
+  }
+};
+
+let data = structuredClone(examples.factory);
+const $ = id => document.getElementById(id);
+const sum = arr => arr.reduce((a,b)=>a+b,0);
+const fmt = n => Number(n).toLocaleString(undefined,{maximumFractionDigits:2});
+const escapeHTML = s => String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+function loadExample(key) {
+  data = structuredClone(examples[key] || examples.custom);
+  $("exampleSelect").value = key;
+  render();
+}
+function matrixHTML() {
+  let html = "<thead><tr><th>Alternative</th>";
+  data.states.forEach((s,j)=>{
+    html += `<th><input aria-label="State ${j+1} name" data-type="state" data-index="${j}" value="${escapeHTML(s)}"><br><small>Probability</small><br><input class="prob-input" aria-label="Probability for ${escapeHTML(s)}" type="number" min="0" max="100" step="any" data-type="prob" data-index="${j}" value="${data.probabilities[j]}">%</th>`;
+  });
+  html += "<th>Remove</th></tr></thead><tbody>";
+  data.alternatives.forEach((a,i)=>{
+    html += `<tr><td><input aria-label="Alternative ${i+1} name" data-type="alternative" data-index="${i}" value="${escapeHTML(a)}"></td>`;
+    data.states.forEach((s,j)=>{
+      html += `<td><input aria-label="Payoff for ${escapeHTML(a)} under ${escapeHTML(s)}" type="number" step="any" data-type="payoff" data-row="${i}" data-col="${j}" value="${data.payoffs[i][j]}"></td>`;
+    });
+    html += `<td><button class="remove" data-action="remove-alternative" data-index="${i}" aria-label="Remove alternative ${i+1}">×</button></td></tr>`;
+  });
+  html += "</tbody>";
+  return html;
+}
+function getAnalysis() {
+  const n = data.alternatives.length, m = data.states.length;
+  const rowMax = data.payoffs.map(row=>Math.max(...row));
+  const rowMin = data.payoffs.map(row=>Math.min(...row));
+  const columnMax = Array.from({length:m},(_,j)=>Math.max(...data.payoffs.map(row=>row[j])));
+  const regrets = data.payoffs.map(row=>row.map((v,j)=>columnMax[j]-v));
+  const maxRegrets = regrets.map(row=>Math.max(...row));
+  const emv = data.payoffs.map(row=>sum(row.map((v,j)=>v*data.probabilities[j]/100)));
+  const metrics = {
+    maximax:{values:rowMax,best:Math.max(...rowMax),direction:"max"},
+    maximin:{values:rowMin,best:Math.max(...rowMin),direction:"max"},
+    regret:{values:maxRegrets,best:Math.min(...maxRegrets),direction:"min"},
+    emv:{values:emv,best:Math.max(...emv),direction:"max"}
+  };
+  Object.values(metrics).forEach(metric=>{
+    metric.winners=metric.values.map((v,i)=>Math.abs(v-metric.best)<1e-9?i:-1).filter(i=>i>=0);
+  });
+  return {metrics,regrets};
+}
+const criterionInfo = {
+  maximax:["Maximax","Highest possible payoff","maximax"],
+  maximin:["Maximin","Best worst-case payoff","maximin"],
+  regret:["Minimax Regret","Smallest maximum regret","regret"],
+  emv:["EMV / Bayes","Highest expected monetary value","emv"]
+};
+function selectedCriteria() {
+  return ["maximax","maximin","regret","emv"].filter(key=>$(key==="regret"?"useRegret":"use"+key[0].toUpperCase()+key.slice(1)).checked);
+}
+function validate() {
+  const p=data.probabilities;
+  const probsValid=p.every(x=>Number.isFinite(x)&&x>=0&&x<=100);
+  const total=sum(p);
+  const payoffsValid=data.payoffs.every(row=>row.length===data.states.length&&row.every(Number.isFinite));
+  const namesValid=data.alternatives.length>0&&data.states.length>0&&data.alternatives.every(x=>x.trim())&&data.states.every(x=>x.trim());
+  const valid=probsValid&&Math.abs(total-100)<0.001&&payoffsValid&&namesValid;
+  const box=$("validation");
+  box.className="status"+(valid?"":" error");
+  box.textContent=valid?`✓ Valid input · Probabilities add up to ${fmt(total)}%.`:`Please check your inputs. Probabilities must be between 0 and 100 and add up to 100%. Names and payoffs cannot be empty.`;
+  return valid;
+}
+function resultCard(key,analysis) {
+  const [name,description]=criterionInfo[key],metric=analysis.metrics[key];
+  const names=metric.winners.map(i=>data.alternatives[i]);
+  return `<div class="result"><div class="result-top"><span class="result-name">${name}</span><span class="result-value">${fmt(metric.best)}</span></div><div class="result-detail">${description}. Winner${names.length>1?"s":""}: <strong>${names.map(escapeHTML).join(", ")}</strong>.</div></div>`;
+}
+function renderResults(analysis,valid) {
+  if(!valid){$("results").innerHTML='<div class="empty">Correct the matrix and probability inputs to calculate results.</div>';return;}
+  const chosen=selectedCriteria();
+  $("results").innerHTML=chosen.length?chosen.map(k=>resultCard(k,analysis)).join(""):'<div class="empty">Select at least one criterion to calculate results.</div>';
+}
+function renderFlow(analysis,valid) {
+  if(!valid){$("flow").innerHTML='<div class="empty">The flow will appear when the input is valid.</div>';return;}
+  const chosen=selectedCriteria();
+  if(!chosen.length){$("flow").innerHTML='<div class="empty">Select at least one criterion to begin the decision process.</div>';return;}
+  let remaining=data.alternatives.map((_,i)=>i);
+  let html=`<div class="flow-step"><div class="flow-number">1</div><div><strong>Start with ${remaining.length} alternatives</strong><p>${remaining.map(i=>escapeHTML(data.alternatives[i])).join(" · ")}</p></div></div>`;
+  chosen.forEach((key,index)=>{
+    const metric=analysis.metrics[key];
+    const best=metric.best;
+    const winners=remaining.filter(i=>Math.abs(metric.values[i]-best)<1e-9);
+    const eliminated=remaining.filter(i=>!winners.includes(i));
+    const [name,description]=criterionInfo[key];
+    html+=`<div class="flow-arrow">↓</div><div class="flow-step"><div class="flow-number">${index+2}</div><div><strong>${name}: ${description}</strong><p>Best score: ${fmt(best)}. ${winners.length} alternative${winners.length===1?"":"s"} remain: ${winners.map(i=>escapeHTML(data.alternatives[i])).join(", ")}.</p>${eliminated.length?`<p>Filtered out: ${eliminated.map(i=>escapeHTML(data.alternatives[i])).join(", ")}.</p>`:"<p>No alternatives eliminated at this stage.</p>"}</div></div>`;
+    remaining=winners;
+  });
+  html+=`<div class="flow-arrow">↓</div><div class="flow-step final-step"><div class="flow-number">✓</div><div><strong>Final result</strong><p>${remaining.map(i=>escapeHTML(data.alternatives[i])).join(", ")} ${remaining.length===1?"is":"are"} the remaining recommendation${remaining.length===1?"":"s"}.</p></div></div>`;
+  $("flow").innerHTML=html;
+  $("recommendation").innerHTML=`<div class="result winner"><div class="result-name">Recommended alternative${remaining.length===1?"":"s"}</div><div style="font-size:18px;font-weight:850;margin-top:8px">${remaining.map(i=>escapeHTML(data.alternatives[i])).join("<br>")}</div><div class="result-detail">Survived all ${chosen.length} selected decision stage${chosen.length===1?"":"s"}. This result depends on the order and criteria selected.</div></div>`;
+}
+function render() {
+  $("matrix").innerHTML=matrixHTML();
+  const valid=validate();
+  const analysis=valid?getAnalysis():null;
+  renderResults(analysis,valid);
+  if(valid) renderFlow(analysis,valid);
+  else {$("flow").innerHTML='<div class="empty">The decision flow will appear after the inputs are corrected.</div>';$("recommendation").innerHTML='<div class="empty">No recommendation yet.</div>';}
+}
+$("matrix").addEventListener("change",e=>{
+  const el=e.target,type=el.dataset.type;
+  if(!type)return;
+  const i=Number(el.dataset.index);
+  if(type==="state")data.states[i]=el.value;
+  if(type==="alternative")data.alternatives[i]=el.value;
+  if(type==="prob")data.probabilities[i]=el.value.trim()===""?NaN:Number(el.value);
+  if(type==="payoff")data.payoffs[Number(el.dataset.row)][Number(el.dataset.col)]=el.value.trim()===""?NaN:Number(el.value);
+  render();
+});
+$("matrix").addEventListener("click",e=>{
+  const b=e.target.closest("button[data-action]");
+  if(!b)return;
+  const i=Number(b.dataset.index);
+  if(b.dataset.action==="remove-alternative"&&data.alternatives.length>1){
+    data.alternatives.splice(i,1);data.payoffs.splice(i,1);render();
+  }
+});
+$("addAlternative").addEventListener("click",()=>{
+  data.alternatives.push("Alternative "+String.fromCharCode(65+data.alternatives.length));
+  data.payoffs.push(data.states.map(()=>0));render();
+});
+$("addState").addEventListener("click",()=>{
+  data.states.push("State "+(data.states.length+1));
+  data.probabilities.push(0);data.payoffs.forEach(row=>row.push(0));render();
+});
+$("exampleSelect").addEventListener("change",e=>loadExample(e.target.value));
+$("resetBtn").addEventListener("click",()=>loadExample($("exampleSelect").value));
+["useMaximax","useMaximin","useRegret","useEmv"].forEach(id=>$(id).addEventListener("change",render));
+render();
+</script>
+</body>
+</html>
